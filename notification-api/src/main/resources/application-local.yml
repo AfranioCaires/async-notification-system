@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/notification_db?allowPublicKeyRetrieval=true&useSSL=false
+    username: notification
+    password: notification
+  kafka:
+    bootstrap-servers: localhost:9094
