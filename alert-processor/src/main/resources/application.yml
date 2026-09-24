@@ -1,0 +1,73 @@
+spring:
+  application:
+    name: alert-processor
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: alert-processor
+      auto-offset-reset: earliest
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.value.default.type: br.com.ubisafe.alertprocessor.infrastructure.messaging.AlertRequestedMessage
+        spring.json.use.type.headers: false
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+    listener:
+      ack-mode: record
+      concurrency: 3
+      observation-enabled: true
+    template:
+      observation-enabled: true
+
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    org.apache.kafka: WARN
+
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:true}
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:true}
+
+app:
+  version: '@project.version@'
+  kafka:
+    alerts-topic: ${KAFKA_ALERTS_TOPIC:notifications.alerts.requested}
+    dead-letter-topic: ${KAFKA_ALERTS_DLT:notifications.alerts.requested.dlt}
+    retry-interval: 2s
+    default-max-retries: 3
+  delivery:
+    simulation:
+      failing-client-ids: ${DELIVERY_FAILING_CLIENT_IDS:}

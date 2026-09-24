@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/alert_processor_db?allowPublicKeyRetrieval=true&useSSL=false
+    username: alert_processor
+    password: alert_processor
+  kafka:
+    bootstrap-servers: localhost:9094
